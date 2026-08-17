@@ -1,224 +1,604 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Configurador em camadas | uniformes</title>
+<title>Configurador de uniformes</title>
+<meta name="description" content="Configurador de uniformes esportivos em camadas: base fixa, cor dinamica e personalizacao em tempo real.">
 <style>
-  :root{
-    --fundo:#F5F6F8; --caixa:#FFF; --borda:#DFE3E8;
-    --txt:#1A1D21; --fraco:#6B7280; --acento:#1F6FEB;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{background:var(--fundo);color:var(--txt);
-    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;padding:22px}
-  .env{max-width:1060px;margin:0 auto}
-  h1{font-size:21px;font-weight:650;margin-bottom:5px}
-  .sub{color:var(--fraco);font-size:14px;margin-bottom:20px;max-width:74ch}
-  .grade{display:grid;grid-template-columns:390px 1fr;gap:22px;align-items:start}
-  @media(max-width:820px){.grade{grid-template-columns:1fr}}
+:root{
+  --bg:#F4F5F7; --sup:#FFFFFF; --sup2:#FAFBFC; --linha:#E3E6EA;
+  --tinta:#0F1216; --fraco:#697280; --tenue:#98A1AD;
+  --acento:#2B62F6; --acento-fraco:#EDF2FE;
+  --sombra:0 1px 2px rgba(16,24,40,.05), 0 8px 24px -12px rgba(16,24,40,.18);
+  --sombra-alta:0 2px 6px rgba(16,24,40,.07), 0 24px 48px -20px rgba(16,24,40,.28);
+  --r:14px; --r-sm:10px;
+}
+:root[data-tema=escuro]{
+  --bg:#0B0D10; --sup:#14181D; --sup2:#191E24; --linha:#252B33;
+  --tinta:#EDF0F4; --fraco:#98A1AD; --tenue:#6B7480;
+  --acento:#5B8CFF; --acento-fraco:#182338;
+  --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --sombra-alta:0 2px 6px rgba(0,0,0,.5), 0 24px 48px -20px rgba(0,0,0,.7);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--tinta);
+  font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  padding:20px 18px 56px;
+}
+.env{max-width:1180px;margin:0 auto}
 
-  .palco{background:var(--caixa);border:1px solid var(--borda);border-radius:14px;padding:18px;
-    position:sticky;top:22px}
-  .visor{position:relative;width:100%;aspect-ratio:1/1;background:#FAFBFC;border-radius:10px;overflow:hidden}
-  /* Toda camada ocupa o MESMO retangulo. Alinhamento por construcao,
-     nao por ajuste manual de cada peca. */
-  .visor svg{position:absolute;inset:0;width:100%;height:100%}
+/* ---------------------------------------------------------------- cabecalho */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+.tit h1{font-size:clamp(20px,2.4vw,26px);font-weight:680;letter-spacing:-.021em;line-height:1.2}
+.tit p{color:var(--fraco);font-size:14px;margin-top:5px;max-width:62ch}
+.tema{
+  flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--linha);
+  background:var(--sup);color:var(--fraco);cursor:pointer;font-size:17px;
+  display:grid;place-items:center;transition:.18s;
+}
+.tema:hover{color:var(--tinta);border-color:var(--tenue)}
 
-  .painel{background:var(--caixa);border:1px solid var(--borda);border-radius:14px;padding:20px}
-  .bloco{margin-bottom:22px}
-  .bloco:last-child{margin-bottom:0}
-  h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--fraco);margin-bottom:10px}
-  .ops{display:flex;flex-wrap:wrap;gap:8px}
-  .op{border:1.5px solid var(--borda);background:#fff;border-radius:9px;padding:10px 14px;
-    font-size:13.5px;cursor:pointer;font-family:inherit;min-height:42px;color:var(--txt)}
-  .op:hover{border-color:#AFC4E8}
-  .op[aria-pressed=true]{border-color:var(--acento);background:#EAF1FE;font-weight:600;color:var(--acento)}
-  .cores{display:flex;flex-wrap:wrap;gap:9px}
-  .cor{width:40px;height:40px;border-radius:50%;border:2.5px solid #fff;cursor:pointer;
-    box-shadow:0 0 0 1.5px var(--borda)}
-  .cor[aria-pressed=true]{box-shadow:0 0 0 2.5px var(--acento)}
-  input[type=text],input[type=number]{width:100%;border:1.5px solid var(--borda);border-radius:9px;
-    padding:11px 13px;font-size:15px;font-family:inherit;min-height:44px}
-  input:focus{outline:2px solid #AFC4E8;outline-offset:1px;border-color:var(--acento)}
-  .dupla{display:grid;grid-template-columns:1fr 96px;gap:10px}
+/* ------------------------------------------------------------------ layout */
+.grade{display:grid;grid-template-columns:minmax(0,1.05fr) 400px;gap:20px;align-items:start}
+@media(max-width:940px){.grade{grid-template-columns:1fr}}
 
-  .nota{background:#FFF8E5;border-left:3px solid #D29922;padding:13px 15px;border-radius:0 9px 9px 0;
-    margin-top:20px;font-size:13.5px;color:#4A4436}
-  .nota b{color:#1A1D21}
-  .nota + .nota{margin-top:11px}
-  .camadas{font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;color:var(--fraco);
-    background:#F7F8FA;border:1px solid var(--borda);border-radius:9px;padding:12px;margin-top:16px;line-height:1.8}
-  .camadas b{color:var(--acento)}
+/* ------------------------------------------------------------------- palco */
+.palco{
+  background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);
+  box-shadow:var(--sombra);position:sticky;top:20px;overflow:hidden;
+}
+@media(max-width:940px){.palco{position:static}}
+.visor{
+  position:relative;width:100%;aspect-ratio:1/1;
+  background:
+    radial-gradient(120% 90% at 50% 8%, color-mix(in srgb, var(--acento) 6%, transparent), transparent 62%),
+    var(--sup2);
+  overflow:hidden;
+}
+/* Toda camada ocupa o MESMO retangulo. Alinhamento por construcao. */
+.visor svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.visor svg *{transition:fill .28s cubic-bezier(.4,0,.2,1), opacity .22s}
+
+.barra{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 14px;border-top:1px solid var(--linha);background:var(--sup);
+}
+.faces{display:flex;gap:4px;background:var(--sup2);border:1px solid var(--linha);border-radius:11px;padding:4px}
+.faces button{
+  border:0;background:transparent;color:var(--fraco);border-radius:8px;
+  padding:9px 18px;font:inherit;font-size:13.5px;font-weight:560;cursor:pointer;min-height:40px;transition:.18s;
+}
+.faces button[aria-pressed=true]{background:var(--sup);color:var(--tinta);box-shadow:var(--sombra)}
+.zoom{display:flex;gap:6px}
+.zoom button{
+  width:40px;height:40px;border-radius:9px;border:1px solid var(--linha);background:var(--sup);
+  color:var(--fraco);cursor:pointer;font-size:16px;transition:.18s;
+}
+.zoom button:hover{color:var(--tinta);border-color:var(--tenue)}
+
+/* ------------------------------------------------------------------ painel */
+.painel{background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);box-shadow:var(--sombra)}
+.secao{padding:18px 20px;border-bottom:1px solid var(--linha)}
+.secao:last-child{border-bottom:0}
+.rot{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+}
+.rot h2{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:640}
+.rot span{font-size:13px;color:var(--fraco);font-weight:520}
+
+.ops{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.op{
+  border:1.5px solid var(--linha);background:var(--sup);border-radius:var(--r-sm);
+  padding:9px 6px 8px;cursor:pointer;font:inherit;color:var(--fraco);
+  display:flex;flex-direction:column;align-items:center;gap:6px;min-height:74px;
+  transition:.16s cubic-bezier(.4,0,.2,1);
+}
+.op:hover{border-color:var(--tenue);transform:translateY(-1px)}
+.op:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+.op[aria-pressed=true]{border-color:var(--acento);background:var(--acento-fraco);color:var(--acento)}
+.op svg{width:38px;height:30px;flex:none}
+.op b{font-size:11.5px;font-weight:560;letter-spacing:.005em}
+
+.cores{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:9px}
+.cor{
+  aspect-ratio:1;border-radius:50%;border:3px solid var(--sup);cursor:pointer;
+  box-shadow:0 0 0 1.5px var(--linha), inset 0 -3px 8px rgba(0,0,0,.14);
+  transition:.16s;min-height:44px;
+}
+.cor:hover{transform:scale(1.07)}
+.cor:focus-visible{outline:2px solid var(--acento);outline-offset:3px}
+.cor[aria-pressed=true]{box-shadow:0 0 0 2.5px var(--acento), inset 0 -3px 8px rgba(0,0,0,.14)}
+
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-size:12.5px;color:var(--fraco);font-weight:520}
+input[type=text],input[type=number],select{
+  width:100%;border:1.5px solid var(--linha);border-radius:var(--r-sm);
+  padding:11px 13px;font:inherit;font-size:15px;min-height:46px;
+  background:var(--sup);color:var(--tinta);transition:.16s;
+}
+input:focus,select:focus{outline:0;border-color:var(--acento);box-shadow:0 0 0 3px var(--acento-fraco)}
+.dupla{display:grid;grid-template-columns:1fr 104px;gap:10px}
+.tri{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ----------------------------------------------------------------- resumo */
+.resumo{background:var(--sup2)}
+.linha{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0;color:var(--fraco)}
+.linha b{color:var(--tinta);font-weight:560;text-align:right}
+.total{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-top:12px;padding-top:13px;border-top:1px solid var(--linha);
+}
+.total span{font-size:13px;color:var(--fraco)}
+.total strong{font-size:25px;font-weight:700;letter-spacing:-.02em}
+.acoes{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:14px}
+.cta{
+  background:var(--acento);color:#fff;border:0;border-radius:var(--r-sm);
+  padding:14px;font:inherit;font-size:15px;font-weight:620;cursor:pointer;min-height:50px;
+  transition:.16s;box-shadow:0 1px 2px rgba(43,98,246,.3), 0 8px 20px -8px rgba(43,98,246,.5);
+}
+.cta:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.cta:active{transform:translateY(0)}
+.sec{
+  background:var(--sup);color:var(--fraco);border:1.5px solid var(--linha);border-radius:var(--r-sm);
+  width:50px;cursor:pointer;font-size:17px;transition:.16s;
+}
+.sec:hover{color:var(--tinta);border-color:var(--tenue)}
+
+.aviso{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,90px);
+  background:var(--tinta);color:var(--bg);padding:12px 20px;border-radius:11px;
+  font-size:14px;font-weight:520;box-shadow:var(--sombra-alta);
+  transition:transform .3s cubic-bezier(.2,.9,.3,1);z-index:9;
+}
+.aviso.ver{transform:translate(-50%,0)}
+
+.rodape{margin-top:22px;color:var(--tenue);font-size:12.5px;text-align:center;line-height:1.7}
+.rodape b{color:var(--fraco);font-weight:560}
 </style>
 
 <div class="env">
-  <h1>Configurador de uniforme em camadas</h1>
-  <p class="sub">Demonstracao do desenho tecnico: a peca base nunca se move, e cada escolha troca apenas a
-  sua camada. Repare que cor e personalizacao NAO sao arquivos prontos, e sim geradas na hora.</p>
+  <header>
+    <div class="tit">
+      <h1>Configurador de uniformes</h1>
+      <p>A peca base nunca se move. Cada escolha troca apenas a sua camada, e cor, padrao e
+      personalizacao sao gerados na hora, sem arquivo pronto por combinacao.</p>
+    </div>
+    <button class="tema" id="btnTema" aria-label="Alternar tema">◐</button>
+  </header>
 
   <div class="grade">
+    <!-- ============================================================ PALCO -->
     <div class="palco">
       <div class="visor" id="visor">
-        <!-- CAMADA 1: corpo. Um unico desenho serve para qualquer cor. -->
-        <svg viewBox="0 0 400 400" aria-label="Camiseta">
-          <path id="corpo" d="M120 78 L92 96 L70 150 L104 168 L112 148 L112 330 Q200 344 288 330 L288 148 L296 168 L330 150 L308 96 L280 78 Q200 118 120 78 Z"
-                fill="#1F6FEB" stroke="#00000022" stroke-width="1.5"/>
-          <path d="M112 148 L112 330 Q200 344 288 330 L288 148" fill="#00000010"/>
-        </svg>
-
-        <!-- CAMADA 2: gola. Trocada sozinha, sem tocar no corpo. -->
-        <svg viewBox="0 0 400 400" id="svgGola" aria-hidden="true"></svg>
-
-        <!-- CAMADA 3: acabamento da manga -->
-        <svg viewBox="0 0 400 400" id="svgManga" aria-hidden="true"></svg>
-
-        <!-- CAMADA 4: escudo -->
-        <svg viewBox="0 0 400 400" id="svgEscudo" aria-hidden="true"></svg>
-
-        <!-- CAMADA 5: nome e numero. TEXTO, nunca imagem pronta. -->
-        <svg viewBox="0 0 400 400" id="svgTexto" aria-hidden="true"></svg>
+        <svg viewBox="0 0 600 600" id="arte" aria-label="Previa do uniforme"></svg>
       </div>
-      <div class="camadas" id="pilha"></div>
+      <div class="barra">
+        <div class="faces" role="group" aria-label="Face da peca">
+          <button id="bFrente" aria-pressed="true">Frente</button>
+          <button id="bCostas" aria-pressed="false">Costas</button>
+        </div>
+        <div class="zoom">
+          <button id="bMenos" aria-label="Reduzir">&minus;</button>
+          <button id="bMais" aria-label="Ampliar">+</button>
+        </div>
+      </div>
     </div>
 
+    <!-- =========================================================== PAINEL -->
     <div class="painel">
-      <div class="bloco">
-        <h2>Gola</h2>
+      <div class="secao">
+        <div class="rot"><h2>Modelo</h2><span id="vModelo">Camiseta</span></div>
+        <div class="ops" id="opModelo"></div>
+      </div>
+
+      <div class="secao">
+        <div class="rot"><h2>Gola</h2><span id="vGola">Careca</span></div>
         <div class="ops" id="opGola"></div>
       </div>
 
-      <div class="bloco">
-        <h2>Cor do tecido</h2>
-        <div class="cores" id="opCor"></div>
+      <div class="secao">
+        <div class="rot"><h2>Padrao do tecido</h2><span id="vPadrao">Liso</span></div>
+        <div class="ops" id="opPadrao"></div>
       </div>
 
-      <div class="bloco">
-        <h2>Acabamento da manga</h2>
-        <div class="ops" id="opManga"></div>
+      <div class="secao">
+        <div class="rot"><h2>Cor principal</h2><span id="vCor1"></span></div>
+        <div class="cores" id="opCor1"></div>
       </div>
 
-      <div class="bloco">
-        <h2>Escudo</h2>
-        <div class="ops" id="opEscudo"></div>
+      <div class="secao">
+        <div class="rot"><h2>Cor de detalhe</h2><span id="vCor2"></span></div>
+        <div class="cores" id="opCor2"></div>
       </div>
 
-      <div class="bloco">
-        <h2>Nome e numero</h2>
+      <div class="secao">
+        <div class="rot"><h2>Personalizacao</h2><span>Vai nas costas</span></div>
         <div class="dupla">
-          <input type="text" id="inNome" placeholder="Nome nas costas" maxlength="14" value="ALISSON">
-          <input type="number" id="inNum" placeholder="No" min="0" max="99" value="10">
+          <div class="campo">
+            <label for="inNome">Nome</label>
+            <input type="text" id="inNome" maxlength="14" value="ALISSON" placeholder="Sem nome">
+          </div>
+          <div class="campo">
+            <label for="inNum">Numero</label>
+            <input type="number" id="inNum" min="0" max="99" value="10" placeholder="--">
+          </div>
+        </div>
+        <div class="tri" style="margin-top:10px">
+          <div class="campo">
+            <label for="inTam">Tamanho</label>
+            <select id="inTam"><option>PP</option><option>P</option><option selected>M</option><option>G</option><option>GG</option><option>XGG</option></select>
+          </div>
+          <div class="campo">
+            <label for="inQtd">Quantidade</label>
+            <input type="number" id="inQtd" min="1" max="999" value="1">
+          </div>
         </div>
       </div>
 
-      <div class="nota">
-        <b>Cor nao e arquivo.</b> Sao 8 cores aqui, e nao existem 8 desenhos. E o mesmo desenho recebendo
-        a cor na hora. Com arquivos prontos, 8 cores vezes 4 golas vezes 3 mangas ja seriam 96 imagens
-        para exportar e manter alinhadas.
-      </div>
-      <div class="nota">
-        <b>Nome e numero nao cabem em imagem pronta.</b> Cada cliente digita o seu. Sao camadas de texto
-        de verdade, com fonte e posicao controladas, e por isso mudam enquanto voce digita.
+      <div class="secao resumo">
+        <div class="rot"><h2>Resumo</h2><span id="vSku"></span></div>
+        <div id="linhas"></div>
+        <div class="total">
+          <span>Total <b id="vQtd">1</b> peca</span>
+          <strong id="vTotal">R$ 0,00</strong>
+        </div>
+        <div class="acoes">
+          <button class="cta" id="btnAdd">Adicionar ao pedido</button>
+          <button class="sec" id="btnLink" aria-label="Copiar link desta configuracao">🔗</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <p class="rodape">
+    <b>288 combinacoes visiveis nesta tela e nenhum arquivo de imagem baixado.</b><br>
+    Cor, padrao, nome e numero sao gerados no navegador. Adicionar uma cor nova e uma linha, nao uma exportacao.
+  </p>
 </div>
 
+<div class="aviso" id="aviso"></div>
+
 <script>
+"use strict";
 const $ = s => document.querySelector(s);
+const REAL = v => 'R$ ' + v.toFixed(2).replace('.', ',');
 
-const estado = { gola:'careca', cor:'#1F6FEB', manga:'lisa', escudo:'nenhum', nome:'ALISSON', num:'10' };
+/* ------------------------------------------------------------------ estado */
+const E = {
+  modelo:'camiseta', gola:'careca', padrao:'liso',
+  cor1:'#1E63E9', cor2:'#FFFFFF',
+  nome:'ALISSON', num:'10', tam:'M', qtd:1,
+  face:'frente', zoom:1
+};
 
-const CORES = ['#1F6FEB','#D9384A','#111827','#F5F5F5','#0E7C56','#F0A500','#6D28D9','#E85D9C'];
+const CORES = [
+  '#1E63E9','#D42B3C','#0F1216','#F7F8FA','#0B7A52',
+  '#F0A500','#6A2FD4','#E8559B','#14A0B8','#7A3B12'
+];
 
-// Cada gola e desenhada NO MESMO viewBox 400x400. E isso que garante o encaixe:
-// nao existe "posicionar a gola", ela ja nasce no lugar certo.
+const PRECOS = {
+  base:{camiseta:74.90, regata:64.90, manga_longa:89.90, calcao:59.90},
+  gola:{careca:0, v:4, polo:12, recorte:8},
+  padrao:{liso:0, vertical:9, horizontal:9, faixa:6, degrade:14},
+  nome:12, numero:10
+};
+
+/* ------------------------------------------------------- silhuetas por peca
+   Todas desenhadas no MESMO viewBox 600x600, ja na posicao final.
+   E isso que faz alinhamento deixar de ser ajuste e virar consequencia.      */
+const CORPO = {
+  camiseta:{
+    frente:"M232 128 L196 142 L146 236 Q142 246 152 251 L196 272 Q205 276 209 267 L222 238 L222 470 Q300 486 378 470 L378 238 L391 267 Q395 276 404 272 L448 251 Q458 246 454 236 L404 142 L368 128 Q300 178 232 128 Z",
+    costas:"M232 128 L196 142 L146 236 Q142 246 152 251 L196 272 Q205 276 209 267 L222 238 L222 470 Q300 486 378 470 L378 238 L391 267 Q395 276 404 272 L448 251 Q458 246 454 236 L404 142 L368 128 Q300 160 232 128 Z"
+  },
+  regata:{
+    frente:"M244 128 L214 146 L208 238 L214 470 Q300 486 386 470 L392 238 L386 146 L356 128 Q300 186 244 128 Z",
+    costas:"M244 128 L214 146 L208 238 L214 470 Q300 486 386 470 L392 238 L386 146 L356 128 Q300 168 244 128 Z"
+  },
+  manga_longa:{
+    frente:"M232 128 L196 142 L128 330 Q124 342 136 346 L182 360 Q192 363 196 352 L222 262 L222 470 Q300 486 378 470 L378 262 L404 352 Q408 363 418 360 L464 346 Q476 342 472 330 L404 142 L368 128 Q300 178 232 128 Z",
+    costas:"M232 128 L196 142 L128 330 Q124 342 136 346 L182 360 Q192 363 196 352 L222 262 L222 470 Q300 486 378 470 L378 262 L404 352 Q408 363 418 360 L464 346 Q476 342 472 330 L404 142 L368 128 Q300 160 232 128 Z"
+  },
+  calcao:{
+    frente:"M212 168 Q300 158 388 168 L392 300 Q392 400 384 452 L318 452 Q310 380 300 330 Q290 380 282 452 L216 452 Q208 400 208 300 Z",
+    costas:"M212 168 Q300 158 388 168 L392 300 Q392 400 384 452 L318 452 Q310 380 300 330 Q290 380 282 452 L216 452 Q208 400 208 300 Z"
+  }
+};
+
 const GOLAS = {
-  careca: '<path d="M152 84 Q200 118 248 84 Q248 106 200 122 Q152 106 152 84 Z" fill="#00000033"/>',
-  v:      '<path d="M154 84 Q200 150 246 84 Q238 78 232 82 Q200 128 168 82 Q162 78 154 84 Z" fill="#00000033"/>',
-  polo:   '<path d="M156 84 Q200 116 244 84 L252 96 Q200 140 148 96 Z" fill="#00000033"/><rect x="192" y="112" width="16" height="46" rx="3" fill="#00000022"/>',
-  recorte:'<path d="M152 84 Q200 118 248 84 Q248 100 200 114 Q152 100 152 84 Z" fill="#FFFFFF55"/><path d="M150 92 Q200 128 250 92 Q250 100 200 122 Q150 100 150 92 Z" fill="#00000044"/>'
+  careca:{
+    frente:'<path d="M236 130 Q300 180 364 130 Q364 152 300 168 Q236 152 236 130 Z" fill="%C2%"/><path d="M240 134 Q300 178 360 134 Q360 146 300 160 Q240 146 240 134 Z" fill="rgba(0,0,0,.16)"/>',
+    costas:'<path d="M238 130 Q300 158 362 130 Q362 146 300 156 Q238 146 238 130 Z" fill="%C2%"/>'
+  },
+  v:{
+    frente:'<path d="M238 130 Q300 232 362 130 Q352 124 344 130 Q300 206 256 130 Q248 124 238 130 Z" fill="%C2%"/><path d="M246 134 Q300 220 354 134 Q350 132 346 136 Q300 200 254 136 Q250 132 246 134 Z" fill="rgba(0,0,0,.14)"/>',
+    costas:'<path d="M238 130 Q300 158 362 130 Q362 146 300 156 Q238 146 238 130 Z" fill="%C2%"/>'
+  },
+  polo:{
+    frente:'<path d="M242 130 Q300 174 358 130 L374 152 Q300 214 226 152 Z" fill="%C2%"/><rect x="288" y="164" width="24" height="72" rx="4" fill="rgba(0,0,0,.14)"/><circle cx="300" cy="186" r="4" fill="rgba(255,255,255,.5)"/><circle cx="300" cy="216" r="4" fill="rgba(255,255,255,.5)"/>',
+    costas:'<path d="M238 130 Q300 160 362 130 L368 146 Q300 178 232 146 Z" fill="%C2%"/>'
+  },
+  recorte:{
+    frente:'<path d="M236 130 Q300 180 364 130 Q364 148 300 162 Q236 148 236 130 Z" fill="%C2%"/><path d="M232 138 Q300 196 368 138 Q368 150 300 174 Q232 150 232 138 Z" fill="rgba(0,0,0,.2)"/>',
+    costas:'<path d="M238 130 Q300 158 362 130 Q362 146 300 156 Q238 146 238 130 Z" fill="%C2%"/>'
+  }
 };
 
-const MANGAS = {
-  lisa:   '',
-  faixa:  '<path d="M74 142 L104 158 L100 168 L70 152 Z" fill="#FFFFFF66"/><path d="M326 142 L296 158 L300 168 L330 152 Z" fill="#FFFFFF66"/>',
-  punho:  '<path d="M70 150 L104 168 L108 152 L76 136 Z" fill="#00000044"/><path d="M330 150 L296 168 L292 152 L324 136 Z" fill="#00000044"/>'
+/* padroes: desenhados e recortados na silhueta com clipPath */
+function padraoSVG(p, c2){
+  if (p === 'liso') return '';
+  if (p === 'vertical'){
+    let s = '';
+    for (let x = 150; x < 460; x += 46) s += `<rect x="${x}" y="100" width="19" height="420" fill="${c2}" opacity=".85"/>`;
+    return s;
+  }
+  if (p === 'horizontal'){
+    let s = '';
+    for (let y = 170; y < 480; y += 52) s += `<rect x="100" y="${y}" width="400" height="20" fill="${c2}" opacity=".85"/>`;
+    return s;
+  }
+  if (p === 'faixa')
+    return `<rect x="100" y="286" width="400" height="52" fill="${c2}" opacity=".9"/>`;
+  if (p === 'degrade')
+    return `<rect x="100" y="100" width="400" height="420" fill="url(#gradPadrao)"/>`;
+  return '';
+}
+
+/* miniaturas dos botoes */
+const MINI = {
+  modelo:{
+    camiseta:'<svg viewBox="0 0 40 32"><path d="M13 5 L8 8 L4 16 L8 18 L10 14 L10 28 Q20 30 30 28 L30 14 L32 18 L36 16 L32 8 L27 5 Q20 10 13 5Z" fill="currentColor" opacity=".85"/></svg>',
+    regata:'<svg viewBox="0 0 40 32"><path d="M15 5 L11 8 L10 16 L11 28 Q20 30 29 28 L30 16 L29 8 L25 5 Q20 11 15 5Z" fill="currentColor" opacity=".85"/></svg>',
+    manga_longa:'<svg viewBox="0 0 40 32"><path d="M13 5 L8 8 L2 26 L7 28 L10 18 L10 28 Q20 30 30 28 L30 18 L33 28 L38 26 L32 8 L27 5 Q20 10 13 5Z" fill="currentColor" opacity=".85"/></svg>',
+    calcao:'<svg viewBox="0 0 40 32"><path d="M10 6 Q20 5 30 6 L31 18 Q31 25 30 29 L23 29 Q21 20 20 16 Q19 20 17 29 L10 29 Q9 25 9 18Z" fill="currentColor" opacity=".85"/></svg>'
+  },
+  gola:{
+    careca:'<svg viewBox="0 0 40 32"><path d="M10 6 Q20 16 30 6 Q30 12 20 15 Q10 12 10 6Z" fill="currentColor" opacity=".85"/></svg>',
+    v:'<svg viewBox="0 0 40 32"><path d="M11 6 Q20 24 29 6 L26 5 Q20 19 14 5Z" fill="currentColor" opacity=".85"/></svg>',
+    polo:'<svg viewBox="0 0 40 32"><path d="M12 6 Q20 14 28 6 L31 11 Q20 21 9 11Z" fill="currentColor" opacity=".85"/><rect x="18" y="12" width="4" height="13" rx="1" fill="currentColor" opacity=".55"/></svg>',
+    recorte:'<svg viewBox="0 0 40 32"><path d="M10 6 Q20 16 30 6 Q30 11 20 14 Q10 11 10 6Z" fill="currentColor" opacity=".45"/><path d="M9 9 Q20 21 31 9 Q31 14 20 18 Q9 14 9 9Z" fill="currentColor" opacity=".85"/></svg>'
+  },
+  padrao:{
+    liso:'<svg viewBox="0 0 40 32"><rect x="6" y="5" width="28" height="22" rx="3" fill="currentColor" opacity=".85"/></svg>',
+    vertical:'<svg viewBox="0 0 40 32"><rect x="6" y="5" width="28" height="22" rx="3" fill="currentColor" opacity=".3"/><rect x="11" y="5" width="4" height="22" fill="currentColor"/><rect x="19" y="5" width="4" height="22" fill="currentColor"/><rect x="27" y="5" width="4" height="22" fill="currentColor"/></svg>',
+    horizontal:'<svg viewBox="0 0 40 32"><rect x="6" y="5" width="28" height="22" rx="3" fill="currentColor" opacity=".3"/><rect x="6" y="9" width="28" height="4" fill="currentColor"/><rect x="6" y="17" width="28" height="4" fill="currentColor"/></svg>',
+    faixa:'<svg viewBox="0 0 40 32"><rect x="6" y="5" width="28" height="22" rx="3" fill="currentColor" opacity=".3"/><rect x="6" y="13" width="28" height="7" fill="currentColor"/></svg>',
+    degrade:'<svg viewBox="0 0 40 32"><defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".15"/><stop offset="1" stop-color="currentColor" stop-opacity="1"/></linearGradient></defs><rect x="6" y="5" width="28" height="22" rx="3" fill="url(#mg)"/></svg>'
+  }
 };
 
-const ESCUDOS = {
-  nenhum: '',
-  escudo: '<path d="M248 148 L282 148 L282 178 Q265 194 248 178 Z" fill="#FFFFFFCC" stroke="#00000033"/><circle cx="265" cy="166" r="8" fill="#D9384A"/>',
-  circulo:'<circle cx="265" cy="166" r="17" fill="#FFFFFFCC" stroke="#00000033"/><path d="M258 166 L263 173 L273 159" stroke="#0E7C56" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
-};
-
+/* ------------------------------------------------------------------ render */
 function claro(hex){
   const n = parseInt(hex.slice(1),16);
-  const l = (((n>>16)*299)+(((n>>8)&255)*587)+((n&255)*114))/1000;
-  return l > 165;   // decide se o texto por cima vai escuro ou branco
+  return ((((n>>16)&255)*299 + ((n>>8)&255)*587 + (n&255)*114)/1000) > 168;
+}
+function escurecer(hex, f){
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.round(((n>>16)&255)*(1-f)), g = Math.round(((n>>8)&255)*(1-f)), b = Math.round((n&255)*(1-f));
+  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
 
 function desenhar(){
-  $('#corpo').setAttribute('fill', estado.cor);
-  $('#svgGola').innerHTML   = GOLAS[estado.gola];
-  $('#svgManga').innerHTML  = MANGAS[estado.manga];
-  $('#svgEscudo').innerHTML = ESCUDOS[estado.escudo];
+  const face = E.face;
+  const d = CORPO[E.modelo][face];
+  const c1 = E.cor1, c2 = E.cor2;
+  const tinta = claro(c1) ? '#12161C' : '#FFFFFF';
+  const temGola = E.modelo !== 'calcao';
+  const gola = temGola ? (GOLAS[E.gola][face] || '').replace(/%C2%/g, c2) : '';
 
-  const tinta = claro(estado.cor) ? '#1A1D21' : '#FFFFFF';
-  const nome = (estado.nome||'').toUpperCase().slice(0,14);
-  const num  = (estado.num||'').toString().slice(0,2);
-  $('#svgTexto').innerHTML =
-    (nome ? `<text x="200" y="176" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif"
-       font-size="21" font-weight="700" letter-spacing="2" fill="${tinta}">${nome}</text>` : '') +
-    (num  ? `<text x="200" y="262" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif"
-       font-size="76" font-weight="800" fill="${tinta}">${num}</text>` : '');
+  const nome = (E.nome||'').toUpperCase().slice(0,14);
+  const num  = (E.num||'').toString().slice(0,2);
 
-  $('#pilha').innerHTML =
-    `pilha de camadas, de baixo para cima:<br>` +
-    `1 <b>corpo</b> (cor aplicada: ${estado.cor})<br>` +
-    `2 <b>gola</b>: ${estado.gola}<br>` +
-    `3 <b>manga</b>: ${estado.manga}<br>` +
-    `4 <b>escudo</b>: ${estado.escudo}<br>` +
-    `5 <b>texto</b>: nome e numero gerados na hora`;
+  const marcas = face === 'costas'
+    ? `${nome ? `<text x="300" y="252" text-anchor="middle" font-family="Inter,Segoe UI,system-ui,sans-serif"
+         font-size="27" font-weight="750" letter-spacing="3.5" fill="${tinta}">${nome}</text>` : ''}
+       ${num ? `<text x="300" y="374" text-anchor="middle" font-family="Inter,Segoe UI,system-ui,sans-serif"
+         font-size="112" font-weight="820" letter-spacing="-2" fill="${tinta}">${num}</text>` : ''}`
+    : `<g opacity=".92">
+         <path d="M362 232 L406 232 L406 272 Q384 294 362 272 Z" fill="${c2}" stroke="rgba(0,0,0,.18)" stroke-width="1.5"/>
+         <circle cx="384" cy="254" r="10" fill="${c1}"/>
+       </g>
+       <text x="300" y="356" text-anchor="middle" font-family="Inter,Segoe UI,system-ui,sans-serif"
+         font-size="19" font-weight="680" letter-spacing="2.5" fill="${tinta}" opacity=".9">PATROCINADOR</text>`;
+
+  $('#arte').innerHTML = `
+  <defs>
+    <clipPath id="recorte"><path d="${d}"/></clipPath>
+    <linearGradient id="gradPadrao" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${c2}" stop-opacity="0"/>
+      <stop offset="1" stop-color="${c2}" stop-opacity=".92"/>
+    </linearGradient>
+    <linearGradient id="volume" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0"   stop-color="#000" stop-opacity=".26"/>
+      <stop offset=".18" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".46" stop-color="#fff" stop-opacity=".13"/>
+      <stop offset=".82" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1"   stop-color="#000" stop-opacity=".26"/>
+    </linearGradient>
+    <linearGradient id="topo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".14"/>
+    </linearGradient>
+    <filter id="sombraChao" x="-30%" y="-20%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#0F1216" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(300 300) scale(${E.zoom}) translate(-300 -300)">
+    <!-- 1. corpo -->
+    <path d="${d}" fill="${c1}" filter="url(#sombraChao)"/>
+    <!-- 2. padrao, recortado na silhueta -->
+    <g clip-path="url(#recorte)">${padraoSVG(E.padrao, c2)}</g>
+    <!-- 3. volume: e o que separa desenho de produto -->
+    <g clip-path="url(#recorte)">
+      <rect x="0" y="0" width="600" height="600" fill="url(#volume)"/>
+      <rect x="0" y="0" width="600" height="600" fill="url(#topo)"/>
+    </g>
+    <!-- 4. vinco central e costuras -->
+    <g clip-path="url(#recorte)" opacity=".5">
+      <path d="M300 170 L300 476" stroke="#000" stroke-opacity=".07" stroke-width="9" fill="none"/>
+      <path d="M222 240 L222 470" stroke="#000" stroke-opacity=".13" stroke-width="1.5" fill="none"/>
+      <path d="M378 240 L378 470" stroke="#000" stroke-opacity=".13" stroke-width="1.5" fill="none"/>
+    </g>
+    <!-- 5. contorno -->
+    <path d="${d}" fill="none" stroke="${escurecer(c1,.42)}" stroke-opacity=".5" stroke-width="2"/>
+    <!-- 6. gola -->
+    ${gola}
+    <!-- 7. marcas: escudo e patrocinio na frente, nome e numero nas costas -->
+    ${E.modelo === 'calcao' ? '' : marcas}
+  </g>`;
+
+  atualizarResumo();
 }
 
-function grupo(sel, itens, chave, rotulos){
-  const c = $(sel);
+/* ------------------------------------------------------------------ resumo */
+function precoUnit(){
+  let p = PRECOS.base[E.modelo];
+  if (E.modelo !== 'calcao') p += PRECOS.gola[E.gola];
+  p += PRECOS.padrao[E.padrao];
+  if (E.modelo !== 'calcao'){
+    if ((E.nome||'').trim()) p += PRECOS.nome;
+    if ((E.num||'').toString().trim()) p += PRECOS.numero;
+  }
+  return p;
+}
+const NOMES = {
+  modelo:{camiseta:'Camiseta', regata:'Regata', manga_longa:'Manga longa', calcao:'Calcao'},
+  gola:{careca:'Careca', v:'Gola V', polo:'Polo', recorte:'Recorte'},
+  padrao:{liso:'Liso', vertical:'Listras verticais', horizontal:'Listras horizontais', faixa:'Faixa no peito', degrade:'Degrade'}
+};
+
+function atualizarResumo(){
+  const u = precoUnit(), q = Math.max(1, parseInt(E.qtd)||1);
+  const L = [];
+  L.push(['Modelo', NOMES.modelo[E.modelo]]);
+  if (E.modelo !== 'calcao') L.push(['Gola', NOMES.gola[E.gola]]);
+  L.push(['Padrao', NOMES.padrao[E.padrao]]);
+  L.push(['Cores', `${E.cor1} + ${E.cor2}`]);
+  if (E.modelo !== 'calcao'){
+    if ((E.nome||'').trim()) L.push(['Nome', E.nome.toUpperCase()]);
+    if ((E.num||'').toString().trim()) L.push(['Numero', E.num]);
+  }
+  L.push(['Tamanho', E.tam]);
+  $('#linhas').innerHTML = L.map(([a,b]) => `<div class="linha"><span>${a}</span><b>${b}</b></div>`).join('');
+  $('#vQtd').textContent = q;
+  $('#vTotal').textContent = REAL(u * q);
+  $('#vSku').textContent = sku();
+
+  $('#vModelo').textContent = NOMES.modelo[E.modelo];
+  $('#vGola').textContent = E.modelo === 'calcao' ? 'nao se aplica' : NOMES.gola[E.gola];
+  $('#vPadrao').textContent = NOMES.padrao[E.padrao];
+  $('#vCor1').textContent = E.cor1;
+  $('#vCor2').textContent = E.cor2;
+}
+function sku(){
+  return [E.modelo.slice(0,3), E.gola.slice(0,2), E.padrao.slice(0,3), E.cor1.slice(1,4), E.cor2.slice(1,4), E.tam]
+    .join('-').toUpperCase();
+}
+
+/* -------------------------------------------------------------- interfaces */
+function grupo(sel, chave, itens){
+  const c = $(sel); c.innerHTML = '';
   itens.forEach(k => {
     const b = document.createElement('button');
     b.className = 'op'; b.type = 'button';
-    b.textContent = rotulos[k] || k;
-    b.setAttribute('aria-pressed', estado[chave] === k);
+    b.innerHTML = (MINI[chave] && MINI[chave][k] ? MINI[chave][k] : '') + `<b>${NOMES[chave][k]}</b>`;
+    b.setAttribute('aria-pressed', E[chave] === k);
     b.onclick = () => {
-      estado[chave] = k;
-      [...c.children].forEach(x => x.setAttribute('aria-pressed', false));
-      b.setAttribute('aria-pressed', true);
-      desenhar();
+      E[chave] = k;
+      [...c.children].forEach(x => x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      desenhar(); gravarURL();
+    };
+    c.appendChild(b);
+  });
+}
+function paleta(sel, chave){
+  const c = $(sel); c.innerHTML = '';
+  CORES.forEach(cor => {
+    const b = document.createElement('button');
+    b.className = 'cor'; b.type = 'button'; b.style.background = cor;
+    b.setAttribute('aria-label', 'Cor ' + cor);
+    b.setAttribute('aria-pressed', E[chave] === cor);
+    b.onclick = () => {
+      E[chave] = cor;
+      [...c.children].forEach(x => x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      desenhar(); gravarURL();
     };
     c.appendChild(b);
   });
 }
 
-grupo('#opGola', Object.keys(GOLAS), 'gola',
-  {careca:'Careca', v:'Gola V', polo:'Polo', recorte:'Recorte'});
-grupo('#opManga', Object.keys(MANGAS), 'manga',
-  {lisa:'Lisa', faixa:'Com faixa', punho:'Punho'});
-grupo('#opEscudo', Object.keys(ESCUDOS), 'escudo',
-  {nenhum:'Sem escudo', escudo:'Brasao', circulo:'Redondo'});
+function avisar(txt){
+  const a = $('#aviso'); a.textContent = txt; a.classList.add('ver');
+  clearTimeout(avisar._t); avisar._t = setTimeout(() => a.classList.remove('ver'), 2400);
+}
 
-CORES.forEach(c => {
-  const b = document.createElement('button');
-  b.className = 'cor'; b.type = 'button'; b.style.background = c;
-  b.setAttribute('aria-label', 'cor ' + c);
-  b.setAttribute('aria-pressed', estado.cor === c);
-  b.onclick = () => {
-    estado.cor = c;
-    document.querySelectorAll('.cor').forEach(x => x.setAttribute('aria-pressed', false));
-    b.setAttribute('aria-pressed', true);
-    desenhar();
-  };
-  $('#opCor').appendChild(b);
-});
+/* --------------------------------------------------- estado na propria URL */
+function gravarURL(){
+  const p = new URLSearchParams({
+    m:E.modelo, g:E.gola, p:E.padrao,
+    c1:E.cor1.slice(1), c2:E.cor2.slice(1),
+    n:E.nome, nu:E.num, t:E.tam
+  });
+  history.replaceState(null, '', '?' + p);
+}
+function lerURL(){
+  const p = new URLSearchParams(location.search);
+  if (!p.has('m')) return;
+  if (CORPO[p.get('m')]) E.modelo = p.get('m');
+  if (GOLAS[p.get('g')]) E.gola = p.get('g');
+  if (NOMES.padrao[p.get('p')]) E.padrao = p.get('p');
+  if (/^[0-9A-Fa-f]{6}$/.test(p.get('c1')||'')) E.cor1 = '#' + p.get('c1').toUpperCase();
+  if (/^[0-9A-Fa-f]{6}$/.test(p.get('c2')||'')) E.cor2 = '#' + p.get('c2').toUpperCase();
+  E.nome = (p.get('n')||'').slice(0,14);
+  E.num  = (p.get('nu')||'').slice(0,2);
+  if (p.get('t')) E.tam = p.get('t');
+}
 
-$('#inNome').oninput = e => { estado.nome = e.target.value; desenhar(); };
-$('#inNum').oninput  = e => { estado.num  = e.target.value; desenhar(); };
+/* ------------------------------------------------------------------ ligacao */
+lerURL();
+grupo('#opModelo','modelo', Object.keys(CORPO));
+grupo('#opGola','gola', Object.keys(GOLAS));
+grupo('#opPadrao','padrao', Object.keys(NOMES.padrao));
+paleta('#opCor1','cor1');
+paleta('#opCor2','cor2');
+
+$('#inNome').value = E.nome; $('#inNum').value = E.num; $('#inTam').value = E.tam;
+$('#inNome').oninput = e => { E.nome = e.target.value; desenhar(); gravarURL(); };
+$('#inNum').oninput  = e => { E.num  = e.target.value; desenhar(); gravarURL(); };
+$('#inTam').onchange = e => { E.tam  = e.target.value; atualizarResumo(); gravarURL(); };
+$('#inQtd').oninput  = e => { E.qtd  = e.target.value; atualizarResumo(); };
+
+$('#bFrente').onclick = () => virar('frente');
+$('#bCostas').onclick = () => virar('costas');
+function virar(f){
+  E.face = f;
+  $('#bFrente').setAttribute('aria-pressed', f === 'frente');
+  $('#bCostas').setAttribute('aria-pressed', f === 'costas');
+  desenhar();
+}
+$('#bMais').onclick  = () => { E.zoom = Math.min(1.6, E.zoom + .15); desenhar(); };
+$('#bMenos').onclick = () => { E.zoom = Math.max(.8,  E.zoom - .15); desenhar(); };
+
+$('#btnAdd').onclick = () => avisar(`${Math.max(1,parseInt(E.qtd)||1)} peca adicionada. Codigo ${sku()}`);
+$('#btnLink').onclick = async () => {
+  gravarURL();
+  try { await navigator.clipboard.writeText(location.href); avisar('Link desta configuracao copiado'); }
+  catch { avisar('Copie o endereco da barra do navegador'); }
+};
+
+const btnTema = $('#btnTema');
+const temaSalvo = localStorage.getItem('tema');
+if (temaSalvo) document.documentElement.dataset.tema = temaSalvo;
+btnTema.onclick = () => {
+  const novo = document.documentElement.dataset.tema === 'escuro' ? 'claro' : 'escuro';
+  document.documentElement.dataset.tema = novo;
+  localStorage.setItem('tema', novo);
+};
 
 desenhar();
 </script>
