@@ -308,43 +308,55 @@ const PRECOS = {
 /* ------------------------------------------------------- silhuetas por peca
    Todas desenhadas no MESMO viewBox 600x600, ja na posicao final.
    E isso que faz alinhamento deixar de ser ajuste e virar consequencia.      */
-const CORPO = {
+const PROF = { careca:180, v:242, polo:188, recorte:184 };   // profundidade do decote
+const PROF_COSTAS = 164;
+
+// prefixo, sufixo: tudo que NAO muda. O decote entra no meio.
+const SILHUETA = {
   camiseta:{
-    frente:"M256 142 Q300 180 344 142 L378 146 L430 166 Q448 176 452 196 L466 244 Q468 256 456 260 L416 272 Q404 276 400 264 L388 224 L384 330 Q382 400 388 462 Q300 478 212 462 Q218 400 216 330 L212 224 L200 264 Q196 276 184 272 L144 260 Q132 256 134 244 L148 196 Q152 176 170 166 L222 146 Z",
-    costas:"M256 142 Q300 164 344 142 L378 146 L430 166 Q448 176 452 196 L466 244 Q468 256 456 260 L416 272 Q404 276 400 264 L388 224 L384 330 Q382 400 388 462 Q300 478 212 462 Q218 400 216 330 L212 224 L200 264 Q196 276 184 272 L144 260 Q132 256 134 244 L148 196 Q152 176 170 166 L222 146 Z"
+    ini:"M256 142 ",
+    fim:" L378 146 L430 166 Q448 176 452 196 L466 244 Q468 256 456 260 L416 272 Q404 276 400 264 L388 224 L384 330 Q382 400 388 462 Q300 478 212 462 Q218 400 216 330 L212 224 L200 264 Q196 276 184 272 L144 260 Q132 256 134 244 L148 196 Q152 176 170 166 L222 146 Z"
   },
   regata:{
-    frente:"M262 146 Q300 190 338 146 L364 152 Q382 162 386 186 L390 300 Q388 392 392 462 Q300 478 208 462 Q212 392 210 300 L214 186 Q218 162 236 152 Z",
-    costas:"M262 146 Q300 172 338 146 L364 152 Q382 162 386 186 L390 300 Q388 392 392 462 Q300 478 208 462 Q212 392 210 300 L214 186 Q218 162 236 152 Z"
+    ini:"M262 146 ",
+    fim:" L364 152 Q382 162 386 186 L390 300 Q388 392 392 462 Q300 478 208 462 Q212 392 210 300 L214 186 Q218 162 236 152 Z"
   },
   manga_longa:{
-    frente:"M256 142 Q300 180 344 142 L378 146 L430 166 Q448 176 452 196 L484 356 Q487 370 473 373 L428 382 Q414 385 411 371 L388 268 L384 340 Q382 404 388 462 Q300 478 212 462 Q218 404 216 340 L212 268 L189 371 Q186 385 172 382 L127 373 Q113 370 116 356 L148 196 Q152 176 170 166 L222 146 Z",
-    costas:"M256 142 Q300 164 344 142 L378 146 L430 166 Q448 176 452 196 L484 356 Q487 370 473 373 L428 382 Q414 385 411 371 L388 268 L384 340 Q382 404 388 462 Q300 478 212 462 Q218 404 216 340 L212 268 L189 371 Q186 385 172 382 L127 373 Q113 370 116 356 L148 196 Q152 176 170 166 L222 146 Z"
-  },
-  calcao:{
-    frente:"M192 194 Q300 180 408 194 L414 262 Q418 340 408 402 Q360 412 316 404 Q310 350 300 312 Q290 350 284 404 Q240 412 192 402 Q182 340 186 262 Z",
-    costas:"M192 194 Q300 180 408 194 L414 262 Q418 340 408 402 Q360 412 316 404 Q310 350 300 312 Q290 350 284 404 Q240 412 192 402 Q182 340 186 262 Z"
+    ini:"M256 142 ",
+    fim:" L378 146 L430 166 Q448 176 452 196 L484 356 Q487 370 473 373 L428 382 Q414 385 411 371 L388 268 L384 340 Q382 404 388 462 Q300 478 212 462 Q218 404 216 340 L212 268 L189 371 Q186 385 172 382 L127 373 Q113 370 116 356 L148 196 Q152 176 170 166 L222 146 Z"
   }
 };
+const CALCAO = "M192 194 Q300 180 408 194 L414 262 Q418 340 408 402 Q360 412 316 404 Q310 350 300 312 Q290 350 284 404 Q240 412 192 402 Q182 340 186 262 Z";
 
-const GOLAS = {
-  careca:{
-    frente:'<path d="M254 142 Q300 180 346 142 L350 153 Q300 196 250 153 Z" fill="%C2%"/><path d="M257 146 Q300 177 343 146 L345 151 Q300 189 255 151 Z" fill="rgba(0,0,0,.13)"/>',
-    costas:'<path d="M254 142 Q300 164 346 142 L349 152 Q300 178 251 152 Z" fill="%C2%"/>'
-  },
-  v:{
-    frente:'<path d="M254 142 Q300 232 346 142 L352 151 Q300 250 248 151 Z" fill="%C2%"/><path d="M261 146 Q300 223 339 146 L342 150 Q300 236 258 150 Z" fill="rgba(0,0,0,.12)"/>',
-    costas:'<path d="M254 142 Q300 164 346 142 L349 152 Q300 178 251 152 Z" fill="%C2%"/>'
-  },
-  polo:{
-    frente:'<path d="M256 142 Q300 176 344 142 L356 158 Q300 206 244 158 Z" fill="%C2%"/><rect x="290" y="170" width="20" height="58" rx="3" fill="%C2%" opacity=".92"/><rect x="290" y="170" width="20" height="58" rx="3" fill="rgba(0,0,0,.1)"/><circle cx="300" cy="188" r="3.2" fill="rgba(255,255,255,.55)"/><circle cx="300" cy="212" r="3.2" fill="rgba(255,255,255,.55)"/>',
-    costas:'<path d="M254 142 Q300 164 346 142 L350 154 Q300 180 250 154 Z" fill="%C2%"/>'
-  },
-  recorte:{
-    frente:'<path d="M254 142 Q300 180 346 142 L349 150 Q300 190 251 150 Z" fill="%C2%"/><path d="M250 152 Q300 200 350 152 L352 161 Q300 212 248 161 Z" fill="rgba(0,0,0,.22)"/>',
-    costas:'<path d="M254 142 Q300 164 346 142 L349 152 Q300 178 251 152 Z" fill="%C2%"/>'
-  }
-};
+function silhueta(modelo, face, gola){
+  if (modelo === 'calcao') return CALCAO;
+  const s = SILHUETA[modelo];
+  const largura = modelo === 'regata' ? 338 : 344;
+  const p = face === 'costas' ? PROF_COSTAS : (PROF[gola] || 180);
+  return s.ini + `Q300 ${p} ${largura} 142` + s.fim;
+}
+
+// A gola e a MESMA curva do decote, engrossada para baixo. Por isso encaixa
+// sempre: ela nao e desenhada separada, ela deriva do decote.
+function golaFaixa(modelo, face, gola, c2){
+  if (modelo === 'calcao')
+    return `<path d="M192 194 Q300 180 408 194 L410 218 Q300 204 190 218 Z" fill="${c2}"/>` +
+           `<path d="M192 214 Q300 200 410 214 L410 219 Q300 205 190 219 Z" fill="rgba(0,0,0,.14)"/>`;
+  const larg = modelo === 'regata' ? 338 : 344;
+  const x0 = modelo === 'regata' ? 262 : 256;
+  const p = face === 'costas' ? PROF_COSTAS : (PROF[gola] || 180);
+  const esp = 15;
+  let s = `<path d="M${x0-3} 142 Q300 ${p} ${larg+3} 142 L${larg+6} 151 Q300 ${p+esp} ${x0-6} 151 Z" fill="${c2}"/>`;
+  s += `<path d="M${x0} 145 Q300 ${p-3} ${larg} 145 L${larg+2} 149 Q300 ${p+esp-6} ${x0-2} 149 Z" fill="rgba(0,0,0,.13)"/>`;
+  if (gola === 'recorte' && face === 'frente')
+    s += `<path d="M${x0-7} 152 Q300 ${p+20} ${larg+7} 152 L${larg+9} 160 Q300 ${p+32} ${x0-9} 160 Z" fill="rgba(0,0,0,.2)"/>`;
+  if (gola === 'polo' && face === 'frente')
+    s += `<rect x="290" y="${p-8}" width="20" height="56" rx="3" fill="${c2}" opacity=".92"/>` +
+         `<rect x="290" y="${p-8}" width="20" height="56" rx="3" fill="rgba(0,0,0,.1)"/>` +
+         `<circle cx="300" cy="${p+8}" r="3.2" fill="rgba(255,255,255,.55)"/>` +
+         `<circle cx="300" cy="${p+30}" r="3.2" fill="rgba(255,255,255,.55)"/>`;
+  return s;
+}
 
 /* padroes: desenhados e recortados na silhueta com clipPath */
 function padraoSVG(p, c2){
@@ -402,30 +414,31 @@ function escurecer(hex, f){
 
 function desenhar(){
   const face = E.face;
-  const d = CORPO[E.modelo][face];
+  const d = silhueta(E.modelo, face, E.gola);
   const c1 = E.cor1, c2 = E.cor2;
   const tinta = claro(c1) ? '#12161C' : '#FFFFFF';
+  const contra = claro(c1) ? '#FFFFFF' : '#12161C';   // borda do texto, para nao sumir sobre padrao
   const temGola = E.modelo !== 'calcao';
-  const gola = temGola
-    ? (GOLAS[E.gola][face] || '').replace(/%C2%/g, c2)
-    : `<path d="M192 194 Q300 180 408 194 L410 218 Q300 204 190 218 Z" fill="${c2}"/>
-       <path d="M192 214 Q300 200 410 214 L410 219 Q300 205 190 219 Z" fill="rgba(0,0,0,.14)"/>`;
+  const gola = golaFaixa(E.modelo, face, E.gola, c2);
 
   const nome = (E.nome||'').toUpperCase().slice(0,14);
   const num  = (E.num||'').toString().slice(0,2);
 
   const marcas = face === 'costas'
     ? `${nome ? `<text x="300" y="246" text-anchor="middle" font-family="Inter,Segoe UI,system-ui,sans-serif"
-         font-size="23" font-weight="760" textLength="148" lengthAdjust="spacingAndGlyphs" fill="${tinta}">${nome}</text>` : ''}
+         font-size="23" font-weight="760" textLength="148" lengthAdjust="spacingAndGlyphs"
+         fill="${tinta}" stroke="${contra}" stroke-width="3.4" paint-order="stroke" stroke-linejoin="round">${nome}</text>` : ''}
        ${num ? `<text x="300" y="370" text-anchor="middle" font-family="Inter,Segoe UI,system-ui,sans-serif"
-         font-size="100" font-weight="820" letter-spacing="-3" fill="${tinta}">${num}</text>` : ''}`
+         font-size="100" font-weight="820" letter-spacing="-3"
+         fill="${tinta}" stroke="${contra}" stroke-width="6" paint-order="stroke" stroke-linejoin="round">${num}</text>` : ''}`
     : `<g opacity=".92">
          <path d="M330 214 L368 214 L368 248 Q349 266 330 248 Z" fill="${c2}" stroke="rgba(0,0,0,.2)" stroke-width="1.4"/>
          <circle cx="349" cy="232" r="8.5" fill="${c1}"/>
        </g>
        <text x="300" y="336" text-anchor="middle" textLength="130" lengthAdjust="spacingAndGlyphs"
          font-family="Inter,Segoe UI,system-ui,sans-serif"
-         font-size="15" font-weight="700" fill="${tinta}" opacity=".92">PATROCINADOR</text>`;
+         font-size="15" font-weight="700" fill="${tinta}" stroke="${contra}" stroke-width="2.6"
+         paint-order="stroke" stroke-linejoin="round" opacity=".95">PATROCINADOR</text>`;
 
   $('#arte').innerHTML = `
   <defs>
@@ -574,8 +587,8 @@ function gravarURL(){
 function lerURL(){
   const p = new URLSearchParams(location.search);
   if (!p.has('m')) return;
-  if (CORPO[p.get('m')]) E.modelo = p.get('m');
-  if (GOLAS[p.get('g')]) E.gola = p.get('g');
+  if (NOMES.modelo[p.get('m')]) E.modelo = p.get('m');
+  if (PROF[p.get('g')]) E.gola = p.get('g');
   if (NOMES.padrao[p.get('p')]) E.padrao = p.get('p');
   if (/^[0-9A-Fa-f]{6}$/.test(p.get('c1')||'')) E.cor1 = '#' + p.get('c1').toUpperCase();
   if (/^[0-9A-Fa-f]{6}$/.test(p.get('c2')||'')) E.cor2 = '#' + p.get('c2').toUpperCase();
@@ -586,8 +599,8 @@ function lerURL(){
 
 /* ------------------------------------------------------------------ ligacao */
 lerURL();
-grupo('#opModelo','modelo', Object.keys(CORPO));
-grupo('#opGola','gola', Object.keys(GOLAS));
+grupo('#opModelo','modelo', ['camiseta','regata','manga_longa','calcao']);
+grupo('#opGola','gola', ['careca','v','polo','recorte']);
 grupo('#opPadrao','padrao', Object.keys(NOMES.padrao));
 paleta('#opCor1','cor1');
 paleta('#opCor2','cor2');
